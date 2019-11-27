@@ -1,11 +1,12 @@
 package com.zzw.litespring.beans.factory;
 
+import com.zzw.litespring.beans.BeanDefinition;
+
 /**
- * 获取bean实例
- *
- * Author: Daydreamer
- * Date:2019/4/14
+ * 供调用的接口
  */
 public interface BeanFactory {
-    Object getBean(String beanID);
+    BeanDefinition getBeanDefinition(String beanId);
+
+    Object getBean(String beanId);
 }

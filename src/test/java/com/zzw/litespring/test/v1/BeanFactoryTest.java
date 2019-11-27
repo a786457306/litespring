@@ -1,83 +1,40 @@
 package com.zzw.litespring.test.v1;
 
 import com.zzw.litespring.beans.BeanDefinition;
-import com.zzw.litespring.beans.factory.BeanCreationException;
-import com.zzw.litespring.beans.factory.BeanDefinitionStoreException;
+import com.zzw.litespring.beans.factory.BeanFactory;
 import com.zzw.litespring.beans.factory.support.DefaultBeanFactory;
-import com.zzw.litespring.beans.factory.xml.XmlBeanDefinitionReader;
-import com.zzw.litespring.core.io.ClassPathResource;
 import com.zzw.litespring.service.v1.PetStoreService;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
- * 测试驱动开发
- * 测试用例也要功能独立，互不影响
- *
- * Author: Daydreamer
- * Date:2019/4/13
+ * 测试BeanFactory
  */
 public class BeanFactoryTest {
-    DefaultBeanFactory factory = null;
-    XmlBeanDefinitionReader reader = null;
-
-    @Before
-    public void setUp(){
-        factory = new DefaultBeanFactory();
-        reader = new XmlBeanDefinitionReader(factory);
-    }
 
     /**
-     * 从xml文件中读取配置的bean
+     * 测试获取bean的实例
+     *
+     * 首先新建BeanFactory bean工厂，读取xml中的配置并创建对应的Bean
+     * 然后根据配置文件中的设置，指定从创建的Bean中获取某个对应的BeanDefinition
+     * 判断bean定义是否正确，即创建的Bean是否是配置文件中指定的bean（类的限定名是否相同）
+     * 判断是否成功创建了Bean实例（创建实例，判断是否为空）
      */
     @Test
     public void testGetBean() {
-        reader.loadBeanDefinitions(new ClassPathResource("petstore-v1.xml"));
+        // Bean工厂
+        BeanFactory beanFactory = new DefaultBeanFactory("petstore-v1.xml");
 
-        // 获取BeanFactory对bean的定义
-        BeanDefinition bd = factory.getBeanDefinition("petStore");
+        // Bean工厂创建Bean定义
+        BeanDefinition beanDefinition = beanFactory.getBeanDefinition("petStore");
 
-        assertTrue(bd.isSingleton());
+        assertEquals("com.zzw.litespring.service.v1.PetStoreService", beanDefinition.getBeanClassName());
 
-        assertFalse(bd.isPrototype());
+        // 工厂创建Bean实例
+        PetStoreService petStoreService = (PetStoreService) beanFactory.getBean("petStore");
 
-        // 验证bean定义是否正确的方法就是验证类名是否相等
-        assertEquals("com.zzw.litespring.service.v1.PetStoreService", bd.getBeanClassName());
+        assertNotNull(petStoreService);
 
-        // 验证实例
-        PetStoreService petStore = (PetStoreService) factory.getBean("petStore");
-
-        assertNotNull(petStore);
-
-        PetStoreService petStore1 = (PetStoreService) factory.getBean("petStore");
-
-        assertTrue(petStore.equals(petStore1));
-    }
-
-    @Test
-    public void testInvalidBean() {
-
-        reader.loadBeanDefinitions(new ClassPathResource("petstore-v1.xml"));
-
-        try {
-            factory.getBean("invalidBean");
-        } catch (BeanCreationException e) {
-            return;
-        }
-        Assert.fail("expect BeanCreationException ");
-    }
-
-    @Test
-    public void testInvalidXML() {
-
-        try {
-            reader.loadBeanDefinitions(new ClassPathResource("xxx.xml"));
-        } catch (BeanDefinitionStoreException e) {
-            return;
-        }
-        Assert.fail("expect BeanDefinitionStoreException ");
     }
 }
