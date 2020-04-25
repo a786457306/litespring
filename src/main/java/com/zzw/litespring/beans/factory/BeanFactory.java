@@ -1,12 +1,15 @@
 package com.zzw.litespring.beans.factory;
 
-import com.zzw.litespring.beans.BeanDefinition;
-
 /**
  * 供调用的接口
  */
 public interface BeanFactory {
-    BeanDefinition getBeanDefinition(String beanId);
 
+    /**
+     * 获取具体的bean实例
+     *
+     * @param beanId
+     * @return
+     */
     Object getBean(String beanId);
 }

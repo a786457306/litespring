@@ -1,9 +1,14 @@
 package com.zzw.litespring.test.v1;
 
 import com.zzw.litespring.beans.BeanDefinition;
+import com.zzw.litespring.beans.factory.BeanCreationException;
+import com.zzw.litespring.beans.factory.BeanDefinitionStoreException;
 import com.zzw.litespring.beans.factory.BeanFactory;
 import com.zzw.litespring.beans.factory.support.DefaultBeanFactory;
+import com.zzw.litespring.beans.factory.xml.XmlBeanDefinitionReader;
 import com.zzw.litespring.service.v1.PetStoreService;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -12,6 +17,21 @@ import static org.junit.Assert.assertNotNull;
  * 测试BeanFactory
  */
 public class BeanFactoryTest {
+
+    DefaultBeanFactory beanFactory = null;
+
+    XmlBeanDefinitionReader reader = null;
+
+    /**
+     * 提前配置
+     * 测试方法互相独立
+     */
+    @Before
+    public void setUp() {
+        // Bean工厂
+        DefaultBeanFactory beanFactory = new DefaultBeanFactory();
+        XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
+    }
 
     /**
      * 测试获取bean的实例
@@ -23,8 +43,9 @@ public class BeanFactoryTest {
      */
     @Test
     public void testGetBean() {
-        // Bean工厂
-        BeanFactory beanFactory = new DefaultBeanFactory("petstore-v1.xml");
+
+        reader.loadBeanDefinition("petstore-v1.xml");
+
 
         // Bean工厂创建Bean定义
         BeanDefinition beanDefinition = beanFactory.getBeanDefinition("petStore");
@@ -36,5 +57,29 @@ public class BeanFactoryTest {
 
         assertNotNull(petStoreService);
 
+    }
+
+    @Test
+    public void testInvalidBean(){
+
+        reader.loadBeanDefinition("petstore-v1.xml");
+
+        try{
+            beanFactory.getBean("invalidBean");
+        }catch(BeanCreationException e){
+            return;
+        }
+        Assert.fail("expect BeanCreationException ");
+    }
+
+    @Test
+    public void testInvalidXML(){
+
+        try{
+            reader.loadBeanDefinition("xxxx.xml");
+        }catch(BeanDefinitionStoreException e){
+            return;
+        }
+        Assert.fail("expect BeanDefinitionStoreException ");
     }
 }
